@@ -1,0 +1,7 @@
+.local/*
+.settings/*/*
+Exceptions_Screenshots/*
+Data/Input/*
+Data/Output/*
+Data/Temp/*
+Data/Config.xlsx
