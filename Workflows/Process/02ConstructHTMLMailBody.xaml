@@ -38,7 +38,7 @@
     </scg:List>
   </TextExpression.NamespacesForImplementation>
   <TextExpression.ReferencesForImplementation>
-    <scg:List x:TypeArguments="AssemblyReference" Capacity="24">
+    <scg:List x:TypeArguments="AssemblyReference" Capacity="25">
       <AssemblyReference>System.Activities</AssemblyReference>
       <AssemblyReference>Microsoft.VisualBasic</AssemblyReference>
       <AssemblyReference>mscorlib</AssemblyReference>
@@ -62,6 +62,7 @@
       <AssemblyReference>UiPath.CV</AssemblyReference>
       <AssemblyReference>System.ComponentModel.Composition</AssemblyReference>
       <AssemblyReference>UiPath.System.Activities.Design</AssemblyReference>
+      <AssemblyReference>UiPath.Mail</AssemblyReference>
       <AssemblyReference>System.Runtime.WindowsRuntime</AssemblyReference>
     </scg:List>
   </TextExpression.ReferencesForImplementation>
@@ -77,7 +78,6 @@
         <Variable x:TypeArguments="x:String" Name="questionCount" />
         <Variable x:TypeArguments="x:String" Name="questionBankUrl" />
         <Variable x:TypeArguments="x:String" Name="introduction" />
-        <Variable x:TypeArguments="x:String" Name="salutation" />
         <Variable x:TypeArguments="x:String" Name="firstName" />
         <Variable x:TypeArguments="x:String" Name="moduleName" />
       </Sequence.Variables>
@@ -88,14 +88,6 @@
         </scg:Dictionary>
       </sap:WorkflowViewStateService.ViewState>
       <ui:ReadTextFile Content="[introduction]" DisplayName="Read Introduction-Template" FileName="[in_Config(&quot;MailTemplatePathIntroduction&quot;).ToString + &quot;.html&quot;]" sap:VirtualizedContainerService.HintSize="384,79" sap2010:WorkflowViewState.IdRef="ReadTextFile_2" />
-      <Assign DisplayName="Assign salutation" sap:VirtualizedContainerService.HintSize="384,60" sap2010:WorkflowViewState.IdRef="Assign_2">
-        <Assign.To>
-          <OutArgument x:TypeArguments="x:String">[salutation]</OutArgument>
-        </Assign.To>
-        <Assign.Value>
-          <InArgument x:TypeArguments="x:String">[If(in_TransactionItem("recipient_gender").ToString.Equals("male"), "Lieber", "Liebe")]</InArgument>
-        </Assign.Value>
-      </Assign>
       <Assign DisplayName="Assign First Name" sap:VirtualizedContainerService.HintSize="384,60" sap2010:WorkflowViewState.IdRef="Assign_3">
         <Assign.To>
           <OutArgument x:TypeArguments="x:String">[firstName]</OutArgument>
@@ -141,7 +133,7 @@
           <OutArgument x:TypeArguments="x:String">[out_mailBodyHtml]</OutArgument>
         </Assign.To>
         <Assign.Value>
-          <InArgument x:TypeArguments="x:String">[String.Format(introduction, salutation, firstName, quizUrl, moduleName, questionCount, questionBankUrl)]</InArgument>
+          <InArgument x:TypeArguments="x:String">[String.Format(introduction, firstName, quizUrl, moduleName, questionCount, questionBankUrl)]</InArgument>
         </Assign.Value>
       </Assign>
     </Sequence>
@@ -260,7 +252,7 @@
           <x:Boolean x:Key="IsPinned">False</x:Boolean>
         </scg:Dictionary>
       </sap:WorkflowViewStateService.ViewState>
-      <If Condition="[in_QuestionsContainingFeedback.Rows.Count = 0]" DisplayName="If Questions-Feedback-DataTable has no rows" sap:VirtualizedContainerService.HintSize="484,286" sap2010:WorkflowViewState.IdRef="If_2">
+      <If Condition="[in_QuestionsContainingFeedback.Rows.Count = 0]" DisplayName="If Questions-Feedback-DataTable has no rows" sap:VirtualizedContainerService.HintSize="484,245" sap2010:WorkflowViewState.IdRef="If_2">
         <If.Then>
           <Sequence DisplayName="Questions Ok Sequence" sap:VirtualizedContainerService.HintSize="200,66" sap2010:WorkflowViewState.IdRef="Sequence_13">
             <sap:WorkflowViewStateService.ViewState>
@@ -281,7 +273,7 @@
           </Sequence>
         </If.Then>
         <If.Else>
-          <Sequence sap2010:Annotation.AnnotationText="Hier eventuell noch Fallunterscheidung mit Attachment&#xD;&#xA;" DisplayName="Questions NOK Sequence" sap:VirtualizedContainerService.HintSize="611,790" sap2010:WorkflowViewState.IdRef="Sequence_15">
+          <Sequence sap2010:Annotation.AnnotationText="" DisplayName="Questions NOK Sequence" sap:VirtualizedContainerService.HintSize="611,779" sap2010:WorkflowViewState.IdRef="Sequence_15">
             <Sequence.Variables>
               <Variable x:TypeArguments="x:String" Name="questionProblemsTemplate" />
               <Variable x:TypeArguments="x:String" Name="questionFeedbackOriginal" />
@@ -289,11 +281,7 @@
               <Variable x:TypeArguments="x:String" Name="questionFeedbackProcessed" />
               <Variable x:TypeArguments="x:String" Name="oneQuestionFeedbackTemplate" />
               <Variable x:TypeArguments="x:String" Name="oneQuestionFeedback" />
-              <Variable x:TypeArguments="scg:List(x:String)" Name="allQuestionsFeedback">
-                <Variable.Default>
-                  <mva:VisualBasicValue x:TypeArguments="scg:List(x:String)" ExpressionText="New List(of String)" />
-                </Variable.Default>
-              </Variable>
+              <Variable x:TypeArguments="scg:List(x:String)" Default="[New List(of String)]" Name="allQuestionsFeedback" />
               <Variable x:TypeArguments="x:String" Name="excelOfferTemplate" />
             </Sequence.Variables>
             <sap:WorkflowViewStateService.ViewState>
@@ -413,12 +401,13 @@
         </If.Else>
       </If>
     </Sequence>
-    <Sequence DisplayName="Construct Ending" sap:VirtualizedContainerService.HintSize="200,66" sap2010:WorkflowViewState.IdRef="Sequence_18">
+    <Sequence DisplayName="Construct Ending" sap:VirtualizedContainerService.HintSize="733,538" sap2010:WorkflowViewState.IdRef="Sequence_18">
       <Sequence.Variables>
         <Variable x:TypeArguments="x:String" Name="quizUrl" />
         <Variable x:TypeArguments="x:String" Name="questionCount" />
         <Variable x:TypeArguments="x:String" Name="questionBankUrl" />
         <Variable x:TypeArguments="x:String" Name="ending" />
+        <Variable x:TypeArguments="x:String" Name="copyHint" />
       </Sequence.Variables>
       <sap:WorkflowViewStateService.ViewState>
         <scg:Dictionary x:TypeArguments="x:String, x:Object">
@@ -426,13 +415,30 @@
           <x:Boolean x:Key="IsPinned">False</x:Boolean>
         </scg:Dictionary>
       </sap:WorkflowViewStateService.ViewState>
-      <ui:ReadTextFile Content="[ending]" DisplayName="Read Ending-Template" FileName="[in_Config(&quot;MailTemplatePathEnding&quot;).ToString + &quot;.html&quot;]" sap:VirtualizedContainerService.HintSize="384,79" sap2010:WorkflowViewState.IdRef="ReadTextFile_9" />
-      <Assign DisplayName="Construct Introduction Text" sap:VirtualizedContainerService.HintSize="384,60" sap2010:WorkflowViewState.IdRef="Assign_23">
+      <ui:ReadTextFile Content="[ending]" DisplayName="Read Ending-Template" FileName="[in_Config(&quot;MailTemplatePathEnding&quot;).ToString + &quot;.html&quot;]" sap:VirtualizedContainerService.HintSize="691,79" sap2010:WorkflowViewState.IdRef="ReadTextFile_9" />
+      <If Condition="[in_TransactionItem(&quot;copy_hint&quot;).ToString.Equals(&quot;&quot;)]" DisplayName="If a copy-Module-Hint shall be given" sap:VirtualizedContainerService.HintSize="691,227" sap2010:WorkflowViewState.IdRef="If_4">
+        <If.Then>
+          <Assign sap:VirtualizedContainerService.HintSize="262,60" sap2010:WorkflowViewState.IdRef="Assign_24">
+            <Assign.To>
+              <OutArgument x:TypeArguments="x:String">[copyHint]</OutArgument>
+            </Assign.To>
+            <Assign.Value>
+              <InArgument x:TypeArguments="x:String">
+                <Literal x:TypeArguments="x:String" Value="" />
+              </InArgument>
+            </Assign.Value>
+          </Assign>
+        </If.Then>
+        <If.Else>
+          <ui:ReadTextFile Content="[copyHint]" DisplayName="Read CopyHint-Template" FileName="[in_Config(&quot;MailTemplatePathCopyModule&quot;).ToString + &quot;.html&quot;]" sap:VirtualizedContainerService.HintSize="384,79" sap2010:WorkflowViewState.IdRef="ReadTextFile_10" />
+        </If.Else>
+      </If>
+      <Assign DisplayName="Construct Introduction Text" sap:VirtualizedContainerService.HintSize="691,60" sap2010:WorkflowViewState.IdRef="Assign_23">
         <Assign.To>
           <OutArgument x:TypeArguments="x:String">[out_mailBodyHtml]</OutArgument>
         </Assign.To>
         <Assign.Value>
-          <InArgument x:TypeArguments="x:String">[out_mailBodyHtml + ending]</InArgument>
+          <InArgument x:TypeArguments="x:String">[out_mailBodyHtml + String.Format(ending, copyHint)]</InArgument>
         </Assign.Value>
       </Assign>
     </Sequence>
